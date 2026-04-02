@@ -17,7 +17,6 @@ import {
   Check,
 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 interface SearchFormProps {
   onSearch: (params: SearchParams) => void;
@@ -261,10 +260,6 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
       <section className="hero-aurora text-center rounded-3xl pt-12 pb-8 px-6 mb-8 relative">
         {/* Dot grid texture */}
         <div className="hero-grid-overlay" />
-        {/* Language Switcher — absolute top-right */}
-        <div className="absolute top-4 right-4 z-20">
-          <LanguageSwitcher />
-        </div>
         <div className="relative z-10">
 
           {/* Badge */}
@@ -322,7 +317,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
 
       {/* ── Form card ─────────────────────────── */}
       <div
-        className="rounded-2xl overflow-hidden"
+        className="rounded-2xl"
         style={{
           background: "var(--surface)",
           border: "1.5px solid var(--border)",
@@ -331,7 +326,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
       >
         {/* Card top bar */}
         <div
-          className="flex items-center justify-between px-7 py-3.5 border-b"
+          className="flex items-center justify-between px-7 py-3.5 border-b rounded-t-2xl"
           style={{
             background: "linear-gradient(to right, var(--accent-light), #F8F5FF)",
             borderColor: "rgba(79,70,229,0.12)",
@@ -479,7 +474,7 @@ export function SearchForm({ onSearch, isLoading }: SearchFormProps) {
             </button>
 
             <p className="text-center text-xs mt-3" style={{ color: "var(--text-subtle)" }}>
-              {t.form.footer}
+              {isLoading ? t.form.searchingHint : t.form.footer}
             </p>
           </div>
         </form>

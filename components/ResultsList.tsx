@@ -36,9 +36,9 @@ function getScoreCfg(score: number, scoreHigh: string, scoreMid: string, scoreLo
   if (score > 60) return {
     scoreClass: "score-high",
     label: scoreHigh,
-    barColor: "var(--danger)",
-    textColor: "var(--danger)",
-    leftBorder: "var(--danger)",
+    barColor: "var(--success)",
+    textColor: "var(--success)",
+    leftBorder: "var(--success)",
   };
   if (score > 30) return {
     scoreClass: "score-mid",
@@ -50,9 +50,9 @@ function getScoreCfg(score: number, scoreHigh: string, scoreMid: string, scoreLo
   return {
     scoreClass: "score-low",
     label: scoreLow,
-    barColor: "var(--success)",
-    textColor: "var(--success)",
-    leftBorder: "var(--success)",
+    barColor: "var(--danger)",
+    textColor: "var(--danger)",
+    leftBorder: "var(--danger)",
   };
 }
 
@@ -119,8 +119,8 @@ export function ResultsList({ results, onSelectLead, onBack }: ResultsListProps)
           </p>
         </div>
 
-        {/* View toggle */}
-        <div className="view-toggle">
+        {/* View toggle — only when there are results */}
+        <div className={`view-toggle${results.length === 0 ? " invisible" : ""}`}>
           <button
             onClick={() => toggleView("card")}
             className={cn("view-toggle-btn", viewMode === "card" && "active")}
@@ -138,8 +138,35 @@ export function ResultsList({ results, onSelectLead, onBack }: ResultsListProps)
         </div>
       </div>
 
+      {/* ── Empty state ──────────────────────── */}
+      {results.length === 0 && (
+        <div
+          className="flex flex-col items-center justify-center py-24 gap-4 rounded-2xl border"
+          style={{
+            background: "var(--surface)",
+            borderColor: "var(--border)",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <div
+            className="w-14 h-14 rounded-2xl flex items-center justify-center"
+            style={{ background: "var(--accent-light)" }}
+          >
+            <Building2 className="w-7 h-7" style={{ color: "var(--accent)" }} />
+          </div>
+          <div className="text-center">
+            <p className="font-bold text-base mb-1" style={{ color: "var(--text)" }}>
+              {t.results.noResults}
+            </p>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+              {t.results.noResultsHint}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ── Card view ────────────────────────── */}
-      {viewMode === "card" ? (
+      {results.length > 0 && viewMode === "card" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {results.map((lead, i) => {
             const cfg = getScoreCfg(lead.digitalPainScore, t.results.scoreHigh, t.results.scoreMid, t.results.scoreLow);
@@ -229,7 +256,7 @@ export function ResultsList({ results, onSelectLead, onBack }: ResultsListProps)
             );
           })}
         </div>
-      ) : (
+      ) : results.length > 0 ? (
         /* ── Table view ───────────────────────── */
         <div
           className="rounded-2xl overflow-hidden overflow-x-auto"
@@ -265,6 +292,9 @@ export function ResultsList({ results, onSelectLead, onBack }: ResultsListProps)
                     key={lead.id}
                     className="cursor-pointer transition-colors"
                     style={{ borderBottom: "1px solid var(--border)" }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`Ver relatório de ${lead.name}`}
                     onMouseEnter={(e) =>
                       ((e.currentTarget as HTMLTableRowElement).style.background = "var(--surface-2)")
                     }
@@ -272,6 +302,12 @@ export function ResultsList({ results, onSelectLead, onBack }: ResultsListProps)
                       ((e.currentTarget as HTMLTableRowElement).style.background = "transparent")
                     }
                     onClick={() => onSelectLead(lead)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onSelectLead(lead);
+                      }
+                    }}
                   >
                     <td className="px-5 py-4">
                       {/* Left border accent */}
@@ -370,7 +406,7 @@ export function ResultsList({ results, onSelectLead, onBack }: ResultsListProps)
             </tbody>
           </table>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

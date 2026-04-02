@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Lead, SearchParams } from "@/types";
 import {
   ArrowLeft,
@@ -23,6 +23,8 @@ interface LeadDetailProps {
   lead: Lead;
   searchParams: SearchParams;
   onBack: () => void;
+  cachedReport?: string;
+  onReportGenerated?: (leadId: string, report: string) => void;
 }
 
 /* ── Score Ring ───────────────────────────────── */
@@ -35,8 +37,8 @@ function ScoreRing({ score }: { score: number }) {
   const isHigh = score > 60;
   const isMid  = score > 30 && score <= 60;
 
-  const color      = isHigh ? "var(--danger)"      : isMid ? "var(--warning)"      : "var(--success)";
-  const trackColor = isHigh ? "var(--danger-bg)"   : isMid ? "var(--warning-bg)"   : "var(--success-bg)";
+  const color      = isHigh ? "var(--success)"      : isMid ? "var(--warning)"      : "var(--danger)";
+  const trackColor = isHigh ? "var(--success-bg)"   : isMid ? "var(--warning-bg)"   : "var(--danger-bg)";
   const label      = isHigh ? t.detail.scoreHigh   : isMid ? t.detail.scoreMid     : t.detail.scoreLow;
   const badgeClass = isHigh ? "score-high"         : isMid ? "score-mid"           : "score-low";
 
@@ -94,18 +96,24 @@ function InfoRow({
 }
 
 /* ── Main Component ───────────────────────────── */
-export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
+export function LeadDetail({ lead, searchParams, onBack, cachedReport, onReportGenerated }: LeadDetailProps) {
   const { t } = useLanguage();
-  const [report, setReport]     = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError]       = useState<string | null>(null);
-  const [copied, setCopied]     = useState(false);
+  const [report, setReport]       = useState<string | null>(cachedReport ?? null);
+  const [isLoading, setIsLoading] = useState(!cachedReport);
+  const [error, setError]         = useState<string | null>(null);
+  const [copied, setCopied]       = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const onReportGeneratedRef = useRef(onReportGenerated);
+  useEffect(() => { onReportGeneratedRef.current = onReportGenerated; });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    if (cachedReport && retryCount === 0) return;
+
+    let isMounted = true;
+
     const fetchReport = async () => {
       try {
-        setIsLoading(true);
+        if (isMounted) { setIsLoading(true); setError(null); }
         const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY });
 
         const countryData = COUNTRIES.find((c) => c.value === searchParams.country);
@@ -203,23 +211,31 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
           contents: reportPrompt,
         });
 
-        setReport(reportResponse.text || t.detail.reportError);
+        const text = reportResponse.text || t.detail.reportError;
+        if (isMounted) {
+          setReport(text);
+          onReportGeneratedRef.current?.(lead.id, text);
+        }
       } catch (err: any) {
         console.error("Report error:", err);
-        setError(err.message || t.detail.reportError);
+        if (isMounted) setError(err.message || t.detail.reportError);
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     };
 
     fetchReport();
-  }, [lead, searchParams]);
+    return () => { isMounted = false; };
+  }, [lead, searchParams, retryCount, cachedReport, t.detail.reportError]);
 
-  const copyToClipboard = () => {
-    if (report) {
-      navigator.clipboard.writeText(report);
+  const copyToClipboard = async () => {
+    if (!report) return;
+    try {
+      await navigator.clipboard.writeText(report);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard unavailable or permission denied — fail silently
     }
   };
 
@@ -278,7 +294,7 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
                     {lead.nationalPhoneNumber}
                   </a>
                 ) : (
-                  <span className="italic" style={{ color: "var(--text-subtle)" }}>{t.detail.noAddress}</span>
+                  <span className="italic" style={{ color: "var(--text-subtle)" }}>{t.results.noPhone}</span>
                 )}
               </InfoRow>
 
@@ -294,7 +310,7 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
                     {lead.websiteUri}
                   </a>
                 ) : (
-                  <span className="italic" style={{ color: "var(--text-subtle)" }}>{t.detail.noAddress}</span>
+                  <span className="italic" style={{ color: "var(--text-subtle)" }}>{t.results.noWebsite}</span>
                 )}
               </InfoRow>
 
@@ -321,7 +337,7 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
               className="text-xs font-semibold uppercase tracking-widest mb-5"
               style={{ color: "var(--text-subtle)" }}
             >
-              Digital Pain Score
+              {t.detail.scoreLabel}
             </p>
             <ScoreRing score={lead.digitalPainScore} />
             <p className="text-xs mt-5 leading-relaxed max-w-[180px]" style={{ color: "var(--text-muted)" }}>
@@ -340,10 +356,10 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
             className="card min-h-[600px] flex flex-col overflow-hidden"
             style={{
               borderTopColor: lead.digitalPainScore > 60
-                ? "var(--danger)"
+                ? "var(--success)"
                 : lead.digitalPainScore > 30
                   ? "var(--warning)"
-                  : "var(--success)",
+                  : "var(--danger)",
               borderTopWidth: "3px",
             }}
           >
@@ -400,11 +416,11 @@ export function LeadDetail({ lead, searchParams, onBack }: LeadDetailProps) {
                     <p className="text-sm font-medium">{error}</p>
                   </div>
                   <button
-                    onClick={() => window.location.reload()}
+                    onClick={() => setRetryCount((c) => c + 1)}
                     className="btn-outline-sm"
                     style={{ borderColor: "var(--danger-border)", color: "var(--danger)" }}
                   >
-                    {t.detail.reportError}
+                    {t.detail.retry}
                   </button>
                 </div>
               ) : report ? (

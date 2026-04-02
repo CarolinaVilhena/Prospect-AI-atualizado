@@ -59,7 +59,6 @@ export function LanguageSwitcher() {
           >
             <span style={{ fontSize: "1.25em", lineHeight: 1 }}>{opt.flag}</span>
             <span className="hidden sm:inline">{opt.label}</span>
-            <span className="sm:hidden">{opt.shortLabel}</span>
           </button>
         );
       })}

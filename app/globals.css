@@ -395,9 +395,9 @@ body {
 }
 
 .score-high {
-  background: var(--danger-bg);
-  color: var(--danger);
-  border-color: var(--danger-border);
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: var(--success-border);
 }
 
 .score-mid {
@@ -407,9 +407,9 @@ body {
 }
 
 .score-low {
-  background: var(--success-bg);
-  color: var(--success);
-  border-color: var(--success-border);
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: var(--danger-border);
 }
 
 /* ════════════════════════════════════════════════

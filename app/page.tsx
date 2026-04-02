@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { SearchForm } from "@/components/SearchForm";
 import { ResultsList } from "@/components/ResultsList";
 import { LeadDetail } from "@/components/LeadDetail";
 import { Lead, SearchParams } from "@/types";
 import { Sparkles, ChevronRight } from "lucide-react";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { GoogleGenAI } from "@google/genai";
 import { COUNTRIES } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -18,6 +19,7 @@ export default function Home() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const reportCache = useRef<Map<string, string>>(new Map());
 
   const handleSearch = async (params: SearchParams) => {
     setIsLoading(true);
@@ -256,20 +258,23 @@ export default function Home() {
             </nav>
           )}
 
-          {/* AI Status */}
-          <div
-            className="hidden sm:flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium border"
-            style={{
-              backgroundColor: "var(--accent-light)",
-              borderColor: "rgba(79, 70, 229, 0.15)",
-              color: "var(--accent)",
-            }}
-          >
-            <span
-              className="w-1.5 h-1.5 rounded-full animate-pulse-dot"
-              style={{ backgroundColor: "var(--success)" }}
-            />
-            {t.header.geminiActive}
+          {/* Right side: Language switcher + AI status */}
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <div
+              className="hidden sm:flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium border"
+              style={{
+                backgroundColor: "var(--accent-light)",
+                borderColor: "rgba(79, 70, 229, 0.15)",
+                color: "var(--accent)",
+              }}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full animate-pulse-dot"
+                style={{ backgroundColor: "var(--success)" }}
+              />
+              {t.header.geminiActive}
+            </div>
           </div>
         </div>
         {/* Gradient accent line */}
@@ -322,6 +327,8 @@ export default function Home() {
               lead={selectedLead}
               searchParams={searchParams}
               onBack={handleBackToResults}
+              cachedReport={reportCache.current.get(selectedLead.id)}
+              onReportGenerated={(id, report) => reportCache.current.set(id, report)}
             />
           </div>
         )}

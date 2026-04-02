@@ -40,6 +40,7 @@ export interface Translations {
     city: string;
     allCountry: string;
     searching: string;
+    searchingHint: string;
     searchBtn: string;
     footer: string;
     searchPlaceholder: string;
@@ -107,6 +108,7 @@ export interface Translations {
     emailCopied: string;
     noAddress: string;
     reportError: string;
+    retry: string;
   };
   // Error
   error: {
@@ -161,6 +163,7 @@ const pt: Translations = {
     city: "Cidade",
     allCountry: "Todo o país",
     searching: "Buscando leads com IA...",
+    searchingHint: "Pode levar até 30 segundos — consultando Google Maps e Gemini AI.",
     searchBtn: "Buscar Leads Agora",
     footer: "100% gratuito · Gemini AI + Google Maps · Sem cadastro",
     searchPlaceholder: "Buscar...",
@@ -226,6 +229,7 @@ const pt: Translations = {
     emailCopied: "E-mail copiado!",
     noAddress: "Endereço não disponível",
     reportError: "Não foi possível gerar o relatório.",
+    retry: "Tentar novamente",
   },
   error: {
     unexpected: "Ocorreu um erro inesperado.",
@@ -278,6 +282,7 @@ const es: Translations = {
     city: "Ciudad",
     allCountry: "Todo el país",
     searching: "Buscando leads con IA...",
+    searchingHint: "Puede tardar hasta 30 segundos — consultando Google Maps y Gemini AI.",
     searchBtn: "Buscar Leads Ahora",
     footer: "100% gratuito · Gemini AI + Google Maps · Sin registro",
     searchPlaceholder: "Buscar...",
@@ -343,6 +348,7 @@ const es: Translations = {
     emailCopied: "¡Correo copiado!",
     noAddress: "Dirección no disponible",
     reportError: "No se pudo generar el informe.",
+    retry: "Intentar de nuevo",
   },
   error: {
     unexpected: "Ocurrió un error inesperado.",
@@ -395,6 +401,7 @@ const en: Translations = {
     city: "City",
     allCountry: "Entire country",
     searching: "Searching leads with AI...",
+    searchingHint: "May take up to 30 seconds — querying Google Maps and Gemini AI.",
     searchBtn: "Search Leads Now",
     footer: "100% free · Gemini AI + Google Maps · No signup",
     searchPlaceholder: "Search...",
@@ -460,6 +467,7 @@ const en: Translations = {
     emailCopied: "Email copied!",
     noAddress: "Address not available",
     reportError: "Could not generate the report.",
+    retry: "Try again",
   },
   error: {
     unexpected: "An unexpected error occurred.",
