@@ -12,7 +12,7 @@ import { COUNTRIES } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [step, setStep] = useState<"search" | "results" | "detail">("search");
   const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
   const [results, setResults] = useState<Lead[]>([]);
@@ -32,7 +32,8 @@ export default function Home() {
 
       const countryData = COUNTRIES.find((c) => c.value === country);
       const countryLabel = countryData?.label ?? country;
-      const language = countryData?.language ?? "pt-BR";
+      const localeToLang: Record<string, string> = { pt: "pt-BR", es: "es", en: "en" };
+      const language = localeToLang[locale] ?? "pt-BR";
 
       const locationParts = [city, state, countryLabel].filter(Boolean);
       const locationStr = locationParts.join(", ");
@@ -327,8 +328,8 @@ export default function Home() {
               lead={selectedLead}
               searchParams={searchParams}
               onBack={handleBackToResults}
-              cachedReport={reportCache.current.get(selectedLead.id)}
-              onReportGenerated={(id, report) => reportCache.current.set(id, report)}
+              cachedReport={reportCache.current.get(`${selectedLead.id}-${locale}`)}
+              onReportGenerated={(id, report) => reportCache.current.set(`${id}-${locale}`, report)}
             />
           </div>
         )}

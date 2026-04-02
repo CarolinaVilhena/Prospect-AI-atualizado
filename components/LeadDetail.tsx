@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import Markdown from "react-markdown";
 import { GoogleGenAI } from "@google/genai";
-import { COUNTRIES } from "@/lib/constants";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface LeadDetailProps {
@@ -97,7 +96,7 @@ function InfoRow({
 
 /* ── Main Component ───────────────────────────── */
 export function LeadDetail({ lead, searchParams, onBack, cachedReport, onReportGenerated }: LeadDetailProps) {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
   const [report, setReport]       = useState<string | null>(cachedReport ?? null);
   const [isLoading, setIsLoading] = useState(!cachedReport);
   const [error, setError]         = useState<string | null>(null);
@@ -116,8 +115,8 @@ export function LeadDetail({ lead, searchParams, onBack, cachedReport, onReportG
         if (isMounted) { setIsLoading(true); setError(null); }
         const ai = new GoogleGenAI({ apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY });
 
-        const countryData = COUNTRIES.find((c) => c.value === searchParams.country);
-        const language    = countryData?.language ?? "pt-BR";
+        const localeToLang: Record<string, string> = { pt: "pt-BR", es: "es", en: "en" };
+        const language = localeToLang[locale] ?? "pt-BR";
 
         const reportTemplates: Record<string, { languageInstruction: string; intro: string; sections: string }> = {
           "pt-BR": {
@@ -226,7 +225,7 @@ export function LeadDetail({ lead, searchParams, onBack, cachedReport, onReportG
 
     fetchReport();
     return () => { isMounted = false; };
-  }, [lead, searchParams, retryCount, cachedReport, t.detail.reportError]);
+  }, [lead, searchParams, retryCount, cachedReport, t.detail.reportError, locale]);
 
   const copyToClipboard = async () => {
     if (!report) return;
