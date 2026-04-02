@@ -782,3 +782,171 @@ body {
   font-size: 12.5px;
   color: var(--text-subtle);
 }
+
+/* ════════════════════════════════════════════════
+   SEARCH PAGE — "Aurora Mesh" Background
+   Layered orbs · grid · spotlight · conic beams
+   ════════════════════════════════════════════════ */
+
+@keyframes orb-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  30%       { transform: translate(3%, -4%) scale(1.06); }
+  70%       { transform: translate(-2%, 3%) scale(0.96); }
+}
+
+@keyframes orb-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%       { transform: translate(-4%, 2%) scale(1.08); }
+  80%       { transform: translate(3%, -3%) scale(0.94); }
+}
+
+@keyframes orb-drift-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(2%, 5%) scale(1.04); }
+}
+
+@keyframes beam-slow-rotate {
+  from { transform: translate(-50%, -60%) rotate(0deg); }
+  to   { transform: translate(-50%, -60%) rotate(360deg); }
+}
+
+@keyframes bg-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Container */
+.search-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  animation: bg-fade-in 0.8s ease both;
+}
+
+/* Layer 1: base radial gradients */
+.search-bg-base {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -5%,  rgba(79,  70, 229, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 45% at  8% 70%,  rgba(124, 58, 237, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 35% at 92% 88%,  rgba(99, 102, 241, 0.06) 0%, transparent 50%);
+}
+
+/* Layer 2: rotating conic beam (barely visible — adds directionality) */
+.search-bg-beam {
+  position: absolute;
+  width: 1400px;
+  height: 1400px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  background: conic-gradient(
+    from 0deg at 50% 35%,
+    transparent            0deg,
+    rgba(79, 70, 229, 0.04) 25deg,
+    transparent            55deg,
+    transparent           175deg,
+    rgba(124, 58, 237, 0.03) 205deg,
+    transparent           235deg,
+    transparent           360deg
+  );
+  animation: beam-slow-rotate 70s linear infinite;
+}
+
+/* Layer 3: blurred color orbs */
+.search-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(52px);
+}
+
+.search-bg-orb-1 {
+  width: 720px;
+  height: 720px;
+  top: -200px;
+  left: calc(50% - 440px);
+  background: radial-gradient(circle,
+    rgba(79, 70, 229, 0.16) 0%,
+    rgba(124, 58, 237, 0.09) 38%,
+    transparent 70%
+  );
+  animation: orb-drift-a 22s ease-in-out infinite;
+}
+
+.search-bg-orb-2 {
+  width: 520px;
+  height: 520px;
+  top: 12%;
+  right: -100px;
+  background: radial-gradient(circle,
+    rgba(124, 58, 237, 0.13) 0%,
+    rgba(167, 139, 250, 0.07) 42%,
+    transparent 70%
+  );
+  animation: orb-drift-b 28s ease-in-out infinite;
+}
+
+.search-bg-orb-3 {
+  width: 400px;
+  height: 400px;
+  bottom: 12%;
+  left: -70px;
+  background: radial-gradient(circle,
+    rgba(99, 102, 241, 0.10) 0%,
+    rgba(79, 70, 229, 0.05) 50%,
+    transparent 70%
+  );
+  animation: orb-drift-c 32s ease-in-out infinite;
+}
+
+.search-bg-orb-4 {
+  width: 280px;
+  height: 280px;
+  bottom: 8%;
+  right: 8%;
+  background: radial-gradient(circle,
+    rgba(167, 139, 250, 0.09) 0%,
+    rgba(124, 58, 237, 0.04) 50%,
+    transparent 70%
+  );
+  animation: orb-drift-a 24s ease-in-out 6s infinite;
+}
+
+/* Layer 4: central spotlight behind the search form */
+.search-bg-spotlight {
+  position: absolute;
+  width: 1000px;
+  height: 460px;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse,
+    rgba(79, 70, 229, 0.11) 0%,
+    rgba(124, 58, 237, 0.06) 35%,
+    transparent 68%
+  );
+  filter: blur(18px);
+}
+
+/* Layer 5: fine grid lines */
+.search-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(79, 70, 229, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79, 70, 229, 0.055) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 120% 75% at 50% 0%, black 0%, transparent 88%);
+  -webkit-mask-image: radial-gradient(ellipse 120% 75% at 50% 0%, black 0%, transparent 88%);
+}
+
+/* Layer 6: bottom vignette — grounds the page */
+.search-bg-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 100% 40% at 50% 110%, rgba(244, 246, 255, 0.95) 0%, transparent 60%);
+}

@@ -160,9 +160,24 @@ export default function Home() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "var(--bg)" }}>
+      {/* Aurora Mesh background — search step only */}
+      {step === "search" && (
+        <div className="search-bg" aria-hidden="true">
+          <div className="search-bg-base" />
+          <div className="search-bg-beam" />
+          <div className="search-bg-orb search-bg-orb-1" />
+          <div className="search-bg-orb search-bg-orb-2" />
+          <div className="search-bg-orb search-bg-orb-3" />
+          <div className="search-bg-orb search-bg-orb-4" />
+          <div className="search-bg-spotlight" />
+          <div className="search-bg-grid" />
+          <div className="search-bg-vignette" />
+        </div>
+      )}
+
       {/* Header */}
       <header
-        className="sticky top-0 z-20"
+        className="sticky top-0 z-20 relative"
         style={{
           backgroundColor: "rgba(255, 255, 255, 0.92)",
           backdropFilter: "blur(16px)",
@@ -265,7 +280,7 @@ export default function Home() {
       </header>
 
       {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {error && (
           <div
             className="mb-6 p-4 rounded-xl flex items-center justify-between text-sm border"
